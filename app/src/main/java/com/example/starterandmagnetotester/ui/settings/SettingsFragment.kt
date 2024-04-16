@@ -73,7 +73,7 @@ class SettingsFragment : Fragment() {
                 }
 
                 sharedViewModel.setConnectedDevice(device)
-            }
+            }bbDgNUZMe9bghuB
         }
 
         settingsViewModel.text.observe(viewLifecycleOwner) {
