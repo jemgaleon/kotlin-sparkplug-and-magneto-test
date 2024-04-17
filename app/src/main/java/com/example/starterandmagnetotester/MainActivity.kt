@@ -1,20 +1,15 @@
 package com.example.starterandmagnetotester
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.starterandmagnetotester.databinding.ActivityMainBinding
-import com.example.starterandmagnetotester.services.BluetoothService
-import com.example.starterandmagnetotester.viewmodels.SharedViewModel
 import com.google.android.material.navigation.NavigationView
-import java.util.UUID
 
 
 class MainActivity : AppCompatActivity() {

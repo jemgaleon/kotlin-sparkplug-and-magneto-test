@@ -1,29 +1,18 @@
 package com.example.starterandmagnetotester.ui.settings
 
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.example.starterandmagnetotester.databinding.FragmentSettingsBinding
 import com.example.starterandmagnetotester.services.BluetoothService
-import com.example.starterandmagnetotester.R
 import com.example.starterandmagnetotester.adapter.DeviceListAdapter
+import com.example.starterandmagnetotester.data.DataManager
 import com.example.starterandmagnetotester.data.Device
-import com.example.starterandmagnetotester.viewmodels.SharedViewModel
-import java.util.UUID
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
@@ -41,9 +30,6 @@ class SettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val settingsViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
-        val sharedViewModel = ViewModelProvider(this).get(SharedViewModel::class.java)
-
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -64,25 +50,23 @@ class SettingsFragment : Fragment() {
             binding.listPairedDevices.adapter = adapter
             binding.listPairedDevices.setOnItemClickListener { _, _, position, _ ->
                 val device: Device = adapter.getItem(position)
-                val success = bluetoothService.connect(device)
-                if (success) {
+
+                val bluetoothSocket = bluetoothService.connect(device)
+
+                if (bluetoothSocket != null) {
                     binding.textDeviceName.text = device.name
                     Toast.makeText(this.requireContext(), "Connected to ${device.name}", Toast.LENGTH_SHORT).show()
                 } else {
                     binding.textDeviceName.text = ""
                 }
 
-                sharedViewModel.setConnectedDevice(device)
+                // mimic global state; this is not the recommended approach
+                DataManager.setConnectedDevice(device)
+                DataManager.setBluetoothSocket(bluetoothService.bluetoothSocket)
             }
         }
 
-        settingsViewModel.text.observe(viewLifecycleOwner) {
-            // TODO remove
-        }
-
-//        sharedViewModel.bluetoothService.observe(viewLifecycleOwner) {
-//            bluetoothService = it
-//        }
+        binding.textDeviceName.text = DataManager.getConnectedDevice()?.name
 
         return root
     }
