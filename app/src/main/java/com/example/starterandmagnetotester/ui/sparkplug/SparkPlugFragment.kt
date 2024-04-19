@@ -21,12 +21,11 @@ class SparkPlugFragment : Fragment() {
 
     // This property is only valid between onCreateView and
     // onDestroyView.
-    private val binding get() = _binding!!
+//    private val binding get() = _binding!!
 
     private var bluetoothSocket: BluetoothSocket? = null
     private var outputStream: OutputStream? = null
     private var inputStream: InputStream? = null
-
     private var isRunning: Boolean = false;
 
     @SuppressLint("MissingPermission")
@@ -34,21 +33,12 @@ class SparkPlugFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         bluetoothSocket = DataManager.getBluetoothSocket()
-
-        if (bluetoothSocket?.isConnected == false) {
-            bluetoothSocket?.connect()
-        }
-
         outputStream = bluetoothSocket?.outputStream
         inputStream = bluetoothSocket?.inputStream
     }
 
     override fun onDestroy() {
         super.onDestroy()
-
-        if (bluetoothSocket?.isConnected == true) {
-            bluetoothSocket?.close()
-        }
     }
 
     override fun onCreateView(
@@ -57,12 +47,14 @@ class SparkPlugFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSparkPlugBinding.inflate(inflater, container, false)
+        val binding = _binding!!
         val root: View = binding.root
 
         binding.buttonToggle.setOnCheckedChangeListener { _, isChecked ->
             isRunning = isChecked
 
             binding.textResult.text = "-"
+            binding.textResult.visibility = if (isChecked) View.VISIBLE else View.GONE
 
             if (isChecked) {
                 Log.d(logName, "Start test")
@@ -74,6 +66,7 @@ class SparkPlugFragment : Fragment() {
         }
         binding.buttonToggle.isEnabled = bluetoothSocket != null
 
+
         read{
             if (it == "P") {
                 binding.textResult.text = "PASS"
@@ -81,10 +74,6 @@ class SparkPlugFragment : Fragment() {
 
             if (it == "F") {
                 binding.textResult.text = "FAIL"
-            }
-
-            if (!isRunning) {
-                binding.textResult.text = "-"
             }
         }
 
