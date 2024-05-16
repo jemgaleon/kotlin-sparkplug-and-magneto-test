@@ -3,6 +3,7 @@ package com.example.starterandmagnetotester.ui.sparkplug
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,9 @@ class SparkPlugFragment : Fragment() {
     private var inputStream: InputStream? = null
     private var isRunning: Boolean = false;
 
+    private var totalTimeInMillis = 120000L;
+    private var isTimerRunning = false
+
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,18 +54,44 @@ class SparkPlugFragment : Fragment() {
         val binding = _binding!!
         val root: View = binding.root
 
+        // init countdown
+        val countDownTimer = object : CountDownTimer(totalTimeInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Update the text view with the remaining time
+                if (isTimerRunning) {
+                    binding.textTimer.text = convertMillisToTime(millisUntilFinished)
+                }
+            }
+
+            override fun onFinish() {
+                isTimerRunning = false
+                binding.textTimer.text = convertMillisToTime(totalTimeInMillis)
+                this.cancel()
+            }
+        }
+
         binding.buttonToggle.setOnCheckedChangeListener { _, isChecked ->
             isRunning = isChecked
 
-            binding.textResult.text = "-"
+            binding.textResult.text = ""
             binding.textResult.visibility = if (isChecked) View.VISIBLE else View.GONE
 
             if (isChecked) {
                 Log.d(logName, "Start test")
                 write("S_START")
+
+                // start countdown
+                isTimerRunning = true
+                countDownTimer.onTick(totalTimeInMillis)
+                countDownTimer.start()
             } else {
                 Log.d(logName, "Stop test")
                 write("S_STOP")
+
+                // stop countdown
+                isTimerRunning = false
+                binding.textTimer.text = convertMillisToTime(totalTimeInMillis)
+                countDownTimer.cancel()
             }
         }
         binding.buttonToggle.isEnabled = bluetoothSocket != null
@@ -125,5 +155,14 @@ class SparkPlugFragment : Fragment() {
                 }
             }).start()
         }
+    }
+
+
+    private fun convertMillisToTime(millis: Long): String {
+        val seconds = (millis / 1000) % 60
+        val minutes = (millis / (1000 * 60)) % 60
+        val hours = millis / (1000 * 60 * 60)
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
     }
 }

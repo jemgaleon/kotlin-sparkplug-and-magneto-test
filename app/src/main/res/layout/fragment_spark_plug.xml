@@ -27,6 +27,15 @@
             android:textOff="Start" />
 
         <TextView
+            android:id="@+id/text_timer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="00:02:00"
+            android:textAlignment="center"
+            android:textSize="40sp"
+            android:textColor="@color/black" />
+
+        <TextView
             android:id="@+id/text_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
